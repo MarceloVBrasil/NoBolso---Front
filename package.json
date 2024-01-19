@@ -13,7 +13,8 @@
     "cy:run": "cypress run",
     "cy:portals": "cypress run -s cypress/e2e/portals",
     "cy:portal-category": "cypress run -s cypress/e2e/portals/category.cy.ts",
-    "cy:portal-expenses": "cypress run -s cypress/e2e/portals/expenses.cy.ts"
+    "cy:portal-expenses": "cypress run -s cypress/e2e/portals/expenses.cy.ts",
+    "cy:portal-revenue": "cypress run -s cypress/e2e/portals/revenue.cy.ts"
   },
   "dependencies": {
     "axios": "^1.5.0",
