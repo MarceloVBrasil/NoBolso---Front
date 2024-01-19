@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function PrimeiroBanner() {
     return (
         <div className='bg-blue-500 min-h-[20rem] p-8 pt-24 w-full'>

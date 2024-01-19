@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function MoneyBag({ width, height, color }: { width: string, height: string, color?: string }) {
     return (
         <svg fill={color || 'darkorange'} height={height} width={width}

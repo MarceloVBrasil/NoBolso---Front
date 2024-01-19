@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Botao from '../../components/botao/Botao'
 import Input from '../../components/input/Input'
 import { Link } from 'react-router-dom'
-import { validate } from "react-email-validator"
 import useAuth from '../rotasProtegidas/useAuth'
-import { useNavigate } from 'react-router-dom'
 import { axiosInstance } from '../../utils/axios'
 
 export default function Formulario() {
@@ -14,14 +12,14 @@ export default function Formulario() {
     const [credenciaisErradas, setCredenciaisErradas] = useState(false)
     const [formularioAlterado, setFormularioAlterado] = useState(false)
 
-    const { setAuth, auth } = useAuth()
-    const navigate = useNavigate()
+    const { setAuth } = useAuth()
+
     return (
         <div className='flex flex-col font-mulish justify-center items-center p-8 bg-yellow-500 min-h-[20rem]'>
             <div className='w-[90%] max-w-[30rem] bg-white shadow-xl flex flex-col gap-5 p-8'>
                 <div className='relative'>
-                    <Input type='email' placeholder='email' onChange={changeEmail} classname={!validate(email) && email ? 'outline-red-500' : ''} />
-                    <p className={`text-xs absolute bottom-[-1.1rem] right-1 text-red-500 ${!validate(email) && email ? '' : 'hidden'}`}>Email inválido</p>
+                    <Input type='email' placeholder='email' onChange={changeEmail} classname={!isValidEmail(email) && email ? 'outline-red-500' : ''} />
+                    <p className={`text-xs absolute bottom-[-1.1rem] right-1 text-red-500 ${!isValidEmail(email) && email ? '' : 'hidden'}`}>Email inválido</p>
                     <p className={`text-xs absolute bottom-[-1.1rem] right-1 text-red-500 ${credenciaisErradas && !formularioAlterado ? '' : 'hidden'}`}>Credenciais Erradas</p>
                 </div>
                 <div className='relative'>
@@ -55,4 +53,9 @@ export default function Formulario() {
         setFormularioAlterado(true)
         setSenha(e.target.value)
     }
+
+    function isValidEmail(email: string) {
+        return /\S+@\S+\.\S+/.test(email);
+    }
+
 }

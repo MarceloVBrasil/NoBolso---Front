@@ -1,4 +1,3 @@
-import React from 'react'
 import PiggyBank from '../../assets/svgs/PiggyBank'
 
 export default function PrimeiroBanner() {

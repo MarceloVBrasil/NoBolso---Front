@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import { formatarMoeda } from '../../../utils/formatarMoeda';
 
 export default function PrimeiroBanner({ dinheiroEconomizado, legenda }: { dinheiroEconomizado: any, legenda: string }) {

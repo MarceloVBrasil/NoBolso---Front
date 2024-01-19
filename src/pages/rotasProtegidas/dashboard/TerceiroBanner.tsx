@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { formatarMoeda } from '../../../utils/formatarMoeda'
 import { IMonthExpenseRevenue } from '../../../interfaces/IMonthExpenseRevenue';
 import { IFormattedYearExpenseRevenue } from '../../../interfaces/IFormattedYearExpenseRevenue';

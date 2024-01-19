@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Input from '../../components/input/Input'
 import Botao from '../../components/botao/Botao'
 import { Link } from 'react-router-dom'
-import { validate } from "react-email-validator"
 
 export default function Formulario() {
     const [email, setEmail] = useState('')
@@ -19,8 +18,8 @@ export default function Formulario() {
                 </div>
                 <div className='flex flex-col sm:flex-row justify-between gap-4'>
                     <div className='w-full relative'>
-                        <Input type='email' placeholder='email' onChange={(e) => setEmail((e.target as any).value)} classname={!validate(email) && email ? 'outline-red-500' : ''} />
-                        <p className={`text-red-500 text-xs absolute bottom-[-1.1rem] left-1 ${!validate(email) && email ? '' : 'hidden'}`}>Email inválido</p>
+                        <Input type='email' placeholder='email' onChange={(e) => setEmail((e.target as any).value)} classname={!isValidEmail(email) && email ? 'outline-red-500' : ''} />
+                        <p className={`text-red-500 text-xs absolute bottom-[-1.1rem] left-1 ${!isValidEmail(email) && email ? '' : 'hidden'}`}>Email inválido</p>
                     </div>
                     <div className='w-full relative'>
                         <Input type='email' placeholder='confirmar email' onChange={(e) => setConfirmarEmail((e.target as any).value)} classname={email !== confirmarEmail && confirmarEmail ? 'outline-red-500' : ''} />
@@ -51,5 +50,9 @@ export default function Formulario() {
 
     function isSpace(ch: string) {
         return ch == ' '
+    }
+
+    function isValidEmail(email: string) {
+        return /\S+@\S+\.\S+/.test(email);
     }
 }

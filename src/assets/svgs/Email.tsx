@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function Email({ classname }: { classname: string }) {
     return (
         <svg height="20" viewBox="0 -960 960 960" width="20" className={classname}>

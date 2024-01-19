@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLockedBody } from 'usehooks-ts'
 import { createPortal } from 'react-dom'
@@ -8,7 +8,6 @@ import { formatarMoeda } from '../../../utils/formatarMoeda'
 import Botao from '../../../components/botao/Botao'
 import Input from '../../../components/input/Input'
 import useAuth from '../useAuth'
-import { descriptografarToken } from '../helpers/AuthHelper'
 import { axiosInstance } from '../../../utils/axios'
 import useFinance from '../useFinance'
 import { IYearExpenseRevenue } from '../../../interfaces/IYearExpenseRevenue'
@@ -30,9 +29,6 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
 
     const { auth, setAuth } = useAuth()
 
-    const payload = descriptografarToken(auth.refreshToken)
-    const { id: userId } = (payload as any)
-
     const { monthRevenues, setMonthRevenues, past12MonthsRevenues, setPast12MonthsRevenues } = useFinance()
 
     useEffect(() => {
@@ -47,7 +43,7 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
 
     return createPortal(
         <>
-            <motion.section initial={{ top: 0 }} animate={animacaoModal ? 'aberto' : 'fechado'} variants={variants}
+            <motion.section data-testid="revenue-portal" initial={{ top: 0 }} animate={animacaoModal ? 'aberto' : 'fechado'} variants={variants}
                 className='fixed z-[999] shadow-xl left-[5vw] lg:left-[15vw] border-b xl:left-[25vw] flex flex-col gap-4 pt-2 bg-white w-[90vw] max-w-[40rem]'>
                 <div className='flex flex-col gap-4 p-8  border-b'>
 
@@ -67,7 +63,7 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
                                 <div className='flex justify-around text-sm xs:text-base relative' key={receita.id}>
                                     <p className='font-mulish w-48 text-sm xs:text-base'>{receita.categoria}</p>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{formatarMoeda(receita.total, 'BRL')}</p>
-                                    <Delete width='25' height='25' classname='absolute bottom-[0.1rem] right-4 cursor-pointer' />
+                                    <Delete width='25' height='25' classname='absolute bottom-[0.1rem] right-4 cursor-pointer' onClick={() => ''} />
                                 </div>
                             )
                         })}

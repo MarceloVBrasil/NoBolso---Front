@@ -1,3 +1,3 @@
-const variaveisAmbiente = import.meta.env
+const { VITE_SERVER_URL } = import.meta.env
 
-export { variaveisAmbiente }
+export { VITE_SERVER_URL }

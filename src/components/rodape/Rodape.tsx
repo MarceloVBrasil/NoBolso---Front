@@ -1,4 +1,3 @@
-import React from 'react'
 import Github from '../../assets/svgs/Github'
 import Linkedin from '../../assets/svgs/Linkedin'
 

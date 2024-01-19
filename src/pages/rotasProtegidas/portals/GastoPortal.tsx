@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLockedBody } from 'usehooks-ts'
 import { createPortal } from 'react-dom'
@@ -43,13 +43,13 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
 
     return createPortal(
         <>
-            <motion.section initial={{ top: 0 }} animate={animacaoModal ? 'aberto' : 'fechado'} variants={variants}
+            <motion.section data-testid="expenses-portal" initial={{ top: 0 }} animate={animacaoModal ? 'aberto' : 'fechado'} variants={variants}
                 className='fixed z-[999] shadow-xl left-[5vw] lg:left-[15vw] border-b xl:left-[25vw] flex flex-col gap-4 pt-2 bg-white w-[90vw] max-w-[40rem]'>
                 <div className='flex flex-col gap-4 p-8  border-b'>
 
                     <div className='absolute right-8 top-2 text-xl cursor-pointer' onClick={fecharModal}>&times;</div>
                     <div className='flex justify-center gap-8 mb-8'>
-                        <button className='cursor-pointer text-lg' onClick={getMesAnterior}>{'<'}</button>
+                        <button data-testid='gasto-portal-previous-month-button' className='cursor-pointer text-lg' onClick={getMesAnterior}>{'<'}</button>
                         <p className='text-lg font-mulish w-40'>{getNomeMes(data.mes)} {data.ano}</p>
                         <button className='cursor-pointer text-lg focus:border-none' onClick={getProximoMes}>{'>'}</button>
                     </div>
@@ -64,7 +64,7 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
                                 <div className='flex justify-around text-sm xs:text-base relative' key={gasto.id}>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{gasto.categoria}</p>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{formatarMoeda(gasto.total, 'BRL')}</p>
-                                    <Delete onClick={() => ''} width='25' height='25' classname='absolute bottom-[0.1rem] right-4 cursor-pointer' />
+                                    <Delete dataTestId={`delete-expenses-button-${gasto.categoria}-${gasto.total}`} onClick={() => deleteExpense(gasto.id)} width='25' height='25' classname='absolute bottom-[0.1rem] right-4 cursor-pointer' />
                                 </div>
                             )
                         })}
@@ -72,10 +72,11 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
                 </div>
                 <div className=' pb-6 pt-2 px-4 gap-2 flex'>
                     <div className='min-h-10 flex flex-col gap-2 ms:flex-row'>
-                        <Input type='select' placeholder='' classname='w-80' onChange={(e) => setFormData({ ...formData, categoriaId: (e.target as any).value })} label='' selectOptions={categorias} />
-                        <Input type="novoGasto" classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, total: (e.target as any).value })} placeholder='' />
+                        <Input dataTestId='categoria-gasto-select-input' type='select' placeholder='' classname='w-80' onChange={(e) => setFormData({ ...formData, categoriaId: (e.target as any).value })} label='' selectOptions={categorias} />
+                        <Input dataTestId='valor-gasto-input' type="novoGasto" classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, total: (e.target as any).value })} placeholder='' />
                     </div>
-                    <Botao texto='Novo gasto' classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]' onClick={addExpense} />
+
+                    <Botao dataTestId='expenses-portal-send-request-button' texto='Novo gasto' classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]' onClick={addExpense} />
                 </div>
             </motion.section>
             <div className='fixed top-0 left-0 bg-black opacity-20 w-screen h-screen'></div>
@@ -157,6 +158,28 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
 
             fecharModal()
         } catch (error: any) {
+            if (error.response.status === 400) {
+                fecharModal()
+            }
+
+            if (error.response.status == 403) {
+                setAuth({ token: '', refreshToken: '' })
+            }
+        }
+    }
+
+    async function deleteExpense(expenseId: string) {
+        try {
+            await axiosInstance.delete(`/expenses/${expenseId}`,
+                { headers: { authorization: `Bearer ${auth.token}`, refresh_token: `Bearer ${auth.refreshToken}` } })
+
+            fecharModal()
+
+        } catch (error: any) {
+            if (error.response.status === 400) {
+                fecharModal()
+            }
+
             if (error.response.status == 403) {
                 setAuth({ token: '', refreshToken: '' })
             }

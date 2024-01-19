@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import MoneyBag from '../../assets/svgs/MoneyBag'
 import SlideDown from 'react-slidedown'
 import { Link, NavLink } from 'react-router-dom'
@@ -45,7 +45,7 @@ export default function Cabecalho() {
                         <div className={`h-1 transition-all duration-500 bg-yellow-500 ${hoverHomeLink ? 'w-16' : 'w-0'}`}></div>
                     </NavLink>
                     {/* private routes */}
-                    <NavLink to={`/usuario/${auth.id}`} onMouseEnter={() => setHoverLoginLink(true)}
+                    <NavLink to={`/usuario/${auth}`} onMouseEnter={() => setHoverLoginLink(true)}
                         onMouseLeave={() => setHoverLoginLink(false)}
                         onClick={() => setMenuAberto(false)}
                         className={`w-16 text-xl ${!auth.token ? 'hidden' : ''}`}>

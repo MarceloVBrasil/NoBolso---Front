@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import PrimeiroBanner from './PrimeiroBanner'
 import Formulario from './Formulario'
 import useAuth from '../rotasProtegidas/useAuth'

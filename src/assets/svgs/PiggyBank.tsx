@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function PiggyBank({ width, height, left, top, className, tamanhoTexto }: { width: string, height: string, left: string, top: string, className?: string, tamanhoTexto: string }) {
     return (
         <div className={`relative ${className}`}>

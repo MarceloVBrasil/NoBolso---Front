@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function SegundoBanner({ aba, setAba }: { aba: string, setAba: (v: string) => void }) {
     return (
         <div className='flex justify-center items-center gap-8 min-h-[5rem] bg-red-300 relative'>

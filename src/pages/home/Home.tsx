@@ -1,4 +1,3 @@
-import React from 'react'
 import PrimeiroBanner from './PrimeiroBanner'
 import SegundoBanner from './SegundoBanner'
 import TerceiroBanner from './TerceiroBanner'

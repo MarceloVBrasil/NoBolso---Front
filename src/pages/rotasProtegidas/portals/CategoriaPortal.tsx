@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLockedBody } from 'usehooks-ts'
 import { createPortal } from 'react-dom'
@@ -33,11 +33,11 @@ export default function CategoriaPortal({ aberto, setPortalAberto }: { aberto: b
 
     return createPortal(
         <>
-            <motion.section initial={{ top: 0 }} animate={animacaoModal ? 'aberto' : 'fechado'} variants={variants}
+            <motion.section data-testid="category-portal" initial={{ top: 0 }} animate={animacaoModal ? 'aberto' : 'fechado'} variants={variants}
                 className='fixed z-[999] shadow-xl left-[5vw] lg:left-[15vw] border-b xl:left-[25vw] flex flex-col gap-4 pt-2 bg-white w-[90vw] max-w-[40rem]'>
                 <div className='flex flex-col gap-4 p-8  border-b'>
 
-                    <div className='absolute right-8 top-2 text-xl cursor-pointer' onClick={fecharModal}>&times;</div>
+                    <button data-testid='close-category-portal-btn' className='absolute right-8 top-2 text-xl cursor-pointer' onClick={fecharModal}>&times;</button>
                     <div className='flex justify-around'>
                         <p className='font-mulish w-40 font-semibold text-sm xs:text-base'>Categoria</p>
                         <p className='font-mulish w-32 font-semibold text-sm xs:text-base'>Meta</p>
@@ -46,10 +46,10 @@ export default function CategoriaPortal({ aberto, setPortalAberto }: { aberto: b
                         {categoriaData.map(categoria => {
                             return (
                                 <div className='flex justify-around text-sm xs:text-base relative' key={categoria.id}>
-                                    <p className='font-mulish w-40 text-sm xs:text-base'>{categoria.nome}</p>
+                                    <p data-testid={`${categoria.nome}-${categoria.meta}`} className='font-mulish w-40 text-sm xs:text-base'>{categoria.nome}</p>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{categoria.meta ? formatarMoeda(categoria.meta as number, 'BRL') : '-'}</p>
-                                    <Delete width='25' height='25' classname='absolute bottom-[0.1rem] right-[-0.2rem] cursor-pointer' onClick={() => deleteCategory(categoria.id)} />
-                                    <Pencil width='20' height='20' className='absolute bottom-[0.25rem] right-6 cursor-pointer' onClick={() => selectCategory(categoria.id)} />
+                                    <Delete dataTestId={`delete-category-button-${categoria.nome}`} width='25' height='25' classname='absolute bottom-[0.1rem] right-[-0.2rem] cursor-pointer' onClick={() => deleteCategory(categoria.id)} />
+                                    <Pencil dataTestId={`edit-category-button-${categoria.nome}`} width='20' height='20' className='absolute bottom-[0.25rem] right-6 cursor-pointer' onClick={() => selectCategory(categoria.id)} />
                                 </div>
                             )
                         })}
@@ -58,20 +58,20 @@ export default function CategoriaPortal({ aberto, setPortalAberto }: { aberto: b
                 <div className=''>
                     <div className='flex gap-4 px-4'>
                         <div className='flex gap-1 font-mulish'>
-                            <input checked={formData.tipo == 'gasto'} type="radio" value={'gasto'} name='tipoCategoria' id='gasto' onChange={(e) => setFormData({ ...formData, tipo: (e.target as any).value })} />
+                            <input data-testid="gasto-radio-button" checked={formData.tipo == 'gasto'} type="radio" value={'gasto'} name='tipoCategoria' id='gasto' onChange={(e) => setFormData({ ...formData, tipo: (e.target as any).value })} />
                             <label htmlFor="gasto">Gasto</label>
                         </div>
                         <div className='flex gap-1 font-mulish'>
-                            <input checked={formData.tipo == 'receita'} type="radio" value={'receita'} name='tipoCategoria' id='receita' onChange={(e) => setFormData({ ...formData, tipo: (e.target as any).value })} />
+                            <input data-testid='receita-radio-button' checked={formData.tipo == 'receita'} type="radio" value={'receita'} name='tipoCategoria' id='receita' onChange={(e) => setFormData({ ...formData, tipo: (e.target as any).value })} />
                             <label htmlFor="receita">Receita</label>
                         </div>
                     </div>
                     <div className=' pb-6 pt-2 px-4 gap-2 flex'>
                         <div className='min-h-10 flex flex-col gap-2 ms:flex-row'>
                             <Input type='novaCategoria' value={formData.nome} placeholder='nova categoria' classname='w-44 h-10' onChange={changeCategoryName} label='' />
-                            <Input type="novoGasto" value={formData.meta.toString()} classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, meta: (e.target as any).value })} placeholder='' />
+                            <Input type="novoGasto" dataTestId='meta-input' value={formData.meta.toString()} classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, meta: (e.target as any).value })} placeholder='' />
                         </div>
-                        <Botao texto={updateCategory ? 'Atualizar Categoria' : 'Nova Categoria'} classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]'
+                        <Botao dataTestId='categoria-portal-send-request-button' texto={updateCategory ? 'Atualizar Categoria' : 'Nova Categoria'} classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]'
                             onClick={updateCategory ? updateCategoria : addCategoria} />
                     </div>
                 </div>
@@ -104,7 +104,8 @@ export default function CategoriaPortal({ aberto, setPortalAberto }: { aberto: b
             formData.meta = parseFloat(formData.meta.toString().replace('$', '').replace('.', '').replace(',', '.'))
             formData.nome = formData.nome.charAt(0).toUpperCase() + formData.nome.toLowerCase().slice(1)
             const response = await axiosInstance.post(`/category`, { ...formData },
-                { headers: { authorization: `Bearer ${auth.token}`, refresh_token: `Bearer ${auth.refreshToken}` } })
+                { headers: { authorization: `Bearer ${auth.token}`, refresh_token: `Bearer ${auth.refreshToken}` } }
+            )
 
             if (response.status == 201) {
 
@@ -131,6 +132,10 @@ export default function CategoriaPortal({ aberto, setPortalAberto }: { aberto: b
 
             fecharModal()
         } catch (error: any) {
+            if (error.response.status === 400) {
+                fecharModal()
+            }
+
             if (error.response.status == 403) {
                 setAuth({ token: '', refreshToken: '' })
             }

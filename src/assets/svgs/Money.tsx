@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function Money({ width, height, classname }: { width: string, height: string, classname?: string }) {
     return (
         <svg height={width} viewBox="0 -960 960 960" width={height} className={classname}>

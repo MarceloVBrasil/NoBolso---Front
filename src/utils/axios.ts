@@ -1,7 +1,5 @@
 import axios from "axios";
-import { variaveisAmbiente } from "./variaveisAmbiente";
-
-const { VITE_SERVER_URL } = variaveisAmbiente
+import { VITE_SERVER_URL } from "./variaveisAmbiente"
 
 const axiosInstance = axios.create({
     baseURL: VITE_SERVER_URL

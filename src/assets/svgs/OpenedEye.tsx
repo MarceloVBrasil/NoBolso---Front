@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function OpenedEye({ width, height, classname, onClick }: { width: string, height: string, classname: string, onClick: () => void }) {
     return (
         <svg height={height} viewBox="0 -960 960 960" width={width} className={classname} onClick={onClick}>

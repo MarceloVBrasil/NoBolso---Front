@@ -1,8 +1,6 @@
-import React from 'react'
-
-export default function Pencil({ width, height, className, onClick }: { width: string, height: string, className: string, onClick?: any }) {
+export default function Pencil({ width, height, className, onClick, dataTestId }: { width: string, height: string, className: string, onClick?: any, dataTestId?: string }) {
     return (
-        <svg fill="blue" className={className} onClick={onClick} height={height} width={width} version="1.1" id="Capa_1"
+        <svg data-testid={dataTestId} fill="blue" className={className} onClick={onClick} height={height} width={width} version="1.1" id="Capa_1"
             viewBox="0 0 306.637 306.637">
             <g>
                 <g>
