@@ -12,6 +12,8 @@ import useAuth from '../useAuth'
 import useFinance from '../useFinance'
 import { IYearExpenseRevenue } from '../../../interfaces/IYearExpenseRevenue'
 import { IMonthExpenseRevenue } from '../../../interfaces/IMonthExpenseRevenue'
+import Pencil from '../../../assets/svgs/Pencil'
+import { ICategory } from '../../../interfaces/ICategory'
 
 const variants = {
     aberto: { top: '20vh' },
@@ -24,8 +26,9 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
     const [] = useLockedBody(true, 'root')
 
     const [gastos, setGastos] = useState<{ id: string, categoria: string, total: number }[]>([])
-    const [categorias, setCategorias] = useState([])
-    const [formData, setFormData] = useState<{ categoriaId: string, total: number }>({ categoriaId: '', total: 0 })
+    const [categorias, setCategorias] = useState<ICategory[]>([])
+    const [formData, setFormData] = useState<{ categoriaId: string, total: number, id: string }>({ categoriaId: '', total: 0, id: '' })
+    const [updateGasto, setUpdateGasto] = useState(false)
 
     const { auth, setAuth } = useAuth()
 
@@ -64,7 +67,11 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
                                 <div className='flex justify-around text-sm xs:text-base relative' key={gasto.id}>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{gasto.categoria}</p>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{formatarMoeda(gasto.total, 'BRL')}</p>
-                                    <Delete dataTestId={`delete-expenses-button-${gasto.categoria}-${gasto.total}`} onClick={() => deleteExpense(gasto.id)} width='25' height='25' classname='absolute bottom-[0.1rem] right-4 cursor-pointer' />
+                                    <Delete dataTestId={`delete-expenses-button-${gasto.categoria}-${gasto.total}`}
+                                        onClick={() => deleteExpense(gasto.id)} width='25' height='25'
+                                        classname='absolute bottom-[0.1rem] right-4 cursor-pointer' />
+                                    <Pencil dataTestId={`edit-expenses-button-${gasto.categoria}-${gasto.total}`} width='18' height='18'
+                                        className='absolute bottom-[0.3rem] right-[2.7rem] cursor-pointer' onClick={() => selectGasto(gasto.id)} />
                                 </div>
                             )
                         })}
@@ -72,11 +79,13 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
                 </div>
                 <div className=' pb-6 pt-2 px-4 gap-2 flex'>
                     <div className='min-h-10 flex flex-col gap-2 ms:flex-row'>
-                        <Input dataTestId='categoria-gasto-select-input' type='select' placeholder='' classname='w-80' onChange={(e) => setFormData({ ...formData, categoriaId: (e.target as any).value })} label='' selectOptions={categorias} />
-                        <Input dataTestId='valor-gasto-input' type="novoGasto" classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, total: (e.target as any).value })} placeholder='' />
+                        <Input dataTestId='categoria-gasto-select-input' selectedId={formData.categoriaId} type='select' placeholder='' classname='w-80' onChange={(e) => setFormData({ ...formData, categoriaId: (e.target as any).value })} label='' selectOptions={categorias} />
+                        <Input dataTestId='valor-gasto-input' value={formData.total.toString()} type="novoGasto" classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, total: (e.target as any).value })} placeholder='' />
                     </div>
 
-                    <Botao dataTestId='expenses-portal-send-request-button' texto='Novo gasto' classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]' onClick={addExpense} />
+                    <Botao dataTestId='expenses-portal-send-request-button' texto={updateGasto ? 'Atualizar gasto' : 'Novo gasto'}
+                        classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]'
+                        onClick={updateGasto ? updateExpense : addExpense} />
                 </div>
             </motion.section>
             <div className='fixed top-0 left-0 bg-black opacity-20 w-screen h-screen'></div>
@@ -168,6 +177,34 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
         }
     }
 
+    async function updateExpense() {
+        try {
+            const total = parseFloat(formData.total.toString().replace('$', '').replace('.', '').replace(',', '.')).toFixed(2)
+
+            if (!formData.categoriaId || !formData.total) return
+            const response = await axiosInstance.put(`/expenses/${formData.id}`, { year: data.ano, month: data.mes, categoryId: formData.categoriaId, total },
+                { headers: { authorization: `Bearer ${auth.token}`, refresh_token: `Bearer ${auth.refreshToken}` } })
+
+            if (response.status == 201) {
+                if (data.mes == getMesAtual()) {
+                    addExpensetoMesAtual(response.data)
+                }
+
+                addExpenseToUltimos12Meses(response.data)
+            }
+
+            fecharModal()
+        } catch (error: any) {
+            if (error.response.status === 400) {
+                fecharModal()
+            }
+
+            if (error.response.status == 403) {
+                setAuth({ token: '', refreshToken: '' })
+            }
+        }
+    }
+
     async function deleteExpense(expenseId: string) {
         try {
             await axiosInstance.delete(`/expenses/${expenseId}`,
@@ -184,6 +221,12 @@ export default function GastoPortal({ aberto, setPortalAberto }: { aberto: boole
                 setAuth({ token: '', refreshToken: '' })
             }
         }
+    }
+
+    function selectGasto(expenseId: string) {
+        const gasto = gastos.find(gasto => gasto.id == expenseId)!
+        setFormData({ categoriaId: categorias.find(c => c.nome == gasto.categoria)?.id!, total: gasto.total, id: gasto.id })
+        setUpdateGasto(true)
     }
 
     function addExpensetoMesAtual(expenseData: IMonthExpenseRevenue) {

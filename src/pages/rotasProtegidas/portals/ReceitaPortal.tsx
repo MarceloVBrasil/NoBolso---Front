@@ -12,6 +12,8 @@ import { axiosInstance } from '../../../utils/axios'
 import useFinance from '../useFinance'
 import { IYearExpenseRevenue } from '../../../interfaces/IYearExpenseRevenue'
 import { IMonthExpenseRevenue } from '../../../interfaces/IMonthExpenseRevenue'
+import Pencil from '../../../assets/svgs/Pencil'
+import { ICategory } from '../../../interfaces/ICategory'
 
 const variants = {
     aberto: { top: '20vh' },
@@ -24,8 +26,9 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
     const [] = useLockedBody(true, 'root')
 
     const [receitas, setReceitas] = useState<{ id: string, categoria: string, total: number }[]>([])
-    const [categorias, setCategorias] = useState([])
-    const [formData, setFormData] = useState<{ categoriaId: string, total: number }>({ categoriaId: '', total: 0 })
+    const [categorias, setCategorias] = useState<ICategory[]>([])
+    const [formData, setFormData] = useState<{ categoriaId: string, total: number, id: string }>({ categoriaId: '', total: 0, id: '' })
+    const [updateRevenue, setUpdateRevenue] = useState(false)
 
     const { auth, setAuth } = useAuth()
 
@@ -49,7 +52,7 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
 
                     <div className='absolute right-8 top-2 text-xl cursor-pointer' onClick={fecharModal}>&times;</div>
                     <div className='flex justify-center gap-8 mb-8'>
-                        <button className='cursor-pointer text-lg' onClick={getMesAnterior}>{'<'}</button>
+                        <button data-testid='revenue-portal-previous-month-button' className='cursor-pointer text-lg' onClick={getMesAnterior}>{'<'}</button>
                         <p className='text-lg font-mulish w-40'>{getNomeMes(data.mes)} {data.ano}</p>
                         <button className='cursor-pointer text-lg focus:border-none' onClick={getProximoMes}>{'>'}</button>
                     </div>
@@ -63,7 +66,10 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
                                 <div className='flex justify-around text-sm xs:text-base relative' key={receita.id}>
                                     <p className='font-mulish w-48 text-sm xs:text-base'>{receita.categoria}</p>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{formatarMoeda(receita.total, 'BRL')}</p>
-                                    <Delete width='25' height='25' classname='absolute bottom-[0.1rem] right-4 cursor-pointer' onClick={() => ''} />
+                                    <Delete dataTestId={`delete-revenue-button-${receita.categoria}-${receita.total}`} width='25' height='25'
+                                        classname='absolute bottom-[0.1rem] right-4 cursor-pointer' onClick={() => deleteRevenue(receita.id)} />
+                                    <Pencil dataTestId={`edit-revenue-button-${receita.categoria}-${receita.total}`} width='18' height='18'
+                                        className='absolute bottom-[0.3rem] right-[2.7rem] cursor-pointer' onClick={() => selectReceita(receita.id)} />
                                 </div>
                             )
                         })}
@@ -71,10 +77,13 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
                 </div>
                 <div className=' pb-6 pt-2 px-4 gap-2 flex'>
                     <div className='min-h-10 flex flex-col gap-2 ms:flex-row'>
-                        <Input type='select' placeholder='' classname='w-80 ' onChange={(e) => setFormData({ ...formData, categoriaId: (e.target as any).value })} label='' selectOptions={categorias} />
-                        <Input type="novoGasto" classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, total: (e.target as any).value })} placeholder='' />
+                        <Input dataTestId='categoria-revenue-select-input' selectedId={formData.categoriaId} type='select' placeholder='' classname='w-80 ' onChange={(e) => setFormData({ ...formData, categoriaId: (e.target as any).value })} label='' selectOptions={categorias} />
+                        <Input dataTestId='valor-revenue-input' type="novoGasto" value={formData.total.toString()} classname='border h-10 w-44' onChange={(e) => setFormData({ ...formData, total: (e.target as any).value })} placeholder='' />
                     </div>
-                    <Botao texto='Nova receita' classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]' onClick={addRevenue} />
+                    <Botao dataTestId='revenue-portal-send-request-button'
+                        texto={updateRevenue ? 'Atualizar Receita' : 'Nova Receita'}
+                        classname='py-2 font-mulish mx-auto shadow-lg px-4 transition-all duration-500 bg-yellow-300 hover:translate-y-[-0.3rem]'
+                        onClick={updateRevenue ? updateReceita : addRevenue} />
                 </div>
             </motion.section>
             <div className='fixed top-0 left-0 bg-black opacity-20 w-screen h-screen'></div>
@@ -153,10 +162,65 @@ export default function ReceitaPortal({ aberto, setPortalAberto }: { aberto: boo
 
             fecharModal()
         } catch (error: any) {
+            if (error.response.status === 400) {
+                fecharModal()
+            }
+
             if (error.response.status == 403) {
                 setAuth({ token: '', refreshToken: '' })
             }
         }
+    }
+
+    async function updateReceita() {
+        try {
+            const total = parseFloat(formData.total.toString().replace('$', '').replace('.', '').replace(',', '.')).toFixed(2)
+            if (!formData.categoriaId || !formData.total) return
+
+            const response = await axiosInstance.put(`/revenue/${formData.id}`, { year: data.ano, month: data.mes, categoryId: formData.categoriaId, total },
+                { headers: { authorization: `Bearer ${auth.token}`, refresh_token: `Bearer ${auth.refreshToken}` } })
+
+            if (response.status == 201) {
+                if (data.mes == getMesAtual()) {
+                    addRevenueToMesAtual(response.data)
+                }
+
+                addRevenueToUltimos12Meses(response.data)
+            }
+
+            fecharModal()
+        } catch (error: any) {
+            if (error.response.status === 400) {
+                fecharModal()
+            }
+
+            if (error.response.status == 403) {
+                setAuth({ token: '', refreshToken: '' })
+            }
+        }
+    }
+
+    async function deleteRevenue(revenueId: string) {
+        try {
+            await axiosInstance.delete(`/revenue/${revenueId}`,
+                { headers: { authorization: `Bearer ${auth.token}`, refresh_token: `Bearer ${auth.refreshToken}` } })
+
+            fecharModal()
+        } catch (error: any) {
+            if (error.response.status === 400) {
+                fecharModal()
+            }
+
+            if (error.response.status == 403) {
+                setAuth({ token: '', refreshToken: '' })
+            }
+        }
+    }
+
+    function selectReceita(receitaId: string) {
+        const receita = receitas.find(r => r.id == receitaId)!
+        setFormData({ categoriaId: categorias.find(c => c.nome == receita.categoria)?.id!, total: receita.total, id: receita.id })
+        setUpdateRevenue(true)
     }
 
     function addRevenueToMesAtual(revenueData: IMonthExpenseRevenue) {

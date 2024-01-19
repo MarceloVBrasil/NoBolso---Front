@@ -49,7 +49,7 @@ export default function CategoriaPortal({ aberto, setPortalAberto }: { aberto: b
                                     <p data-testid={`${categoria.nome}-${categoria.meta}`} className='font-mulish w-40 text-sm xs:text-base'>{categoria.nome}</p>
                                     <p className='font-mulish w-32 text-sm xs:text-base'>{categoria.meta ? formatarMoeda(categoria.meta as number, 'BRL') : '-'}</p>
                                     <Delete dataTestId={`delete-category-button-${categoria.nome}`} width='25' height='25' classname='absolute bottom-[0.1rem] right-[-0.2rem] cursor-pointer' onClick={() => deleteCategory(categoria.id)} />
-                                    <Pencil dataTestId={`edit-category-button-${categoria.nome}`} width='20' height='20' className='absolute bottom-[0.25rem] right-6 cursor-pointer' onClick={() => selectCategory(categoria.id)} />
+                                    <Pencil dataTestId={`edit-category-button-${categoria.nome}`} width='18' height='18' className='absolute bottom-[0.25rem] right-6 cursor-pointer' onClick={() => selectCategory(categoria.id)} />
                                 </div>
                             )
                         })}

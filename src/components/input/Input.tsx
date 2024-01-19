@@ -7,7 +7,7 @@ import { NumericFormat } from 'react-number-format'
 import Money from '../../assets/svgs/Money'
 import Person from '../../assets/svgs/Person'
 
-export default function Input({ type, placeholder, classname, onChange, selectOptions, label, value, dataTestId }: { type: string, placeholder: string, classname?: string, onChange: ChangeEventHandler, selectOptions?: any, label?: string, value?: string, dataTestId?: string }) {
+export default function Input({ type, placeholder, classname, onChange, selectOptions, label, value, dataTestId, selectedId }: { type: string, placeholder: string, classname?: string, onChange: ChangeEventHandler, selectOptions?: any, label?: string, value?: string, dataTestId?: string, selectedId?: string }) {
     const [mostrarSenha, setMostrarSenha] = useState(false)
 
     switch (type) {
@@ -53,7 +53,7 @@ export default function Input({ type, placeholder, classname, onChange, selectOp
                         <option hidden value={''}>Categorias</option>
                         {selectOptions?.map((option: { id: string, nome: string }) => {
                             return (
-                                <option key={option.id} value={option.id}>{option.nome}</option>
+                                <option selected={option.id == selectedId} key={option.id} value={option.id}>{option.nome}</option>
                             )
                         })}
                     </select>

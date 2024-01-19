@@ -1,6 +1,8 @@
 /// <reference types="cypress" />
 
-beforeEach(() => {
+import { generateRandomValueWith2Decimals } from "./utils/generateRandomValueWith2Decimals"
+
+beforeEach("log in | go to expenses portal", () => {
     // home page
     cy.visit('/')
 
@@ -34,7 +36,7 @@ describe("Expenses Portal Testes e2e:", () => {
                 cy.getByTestId('expenses-portal').should('exist')
 
                 cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
-                cy.getByTestId('valor-gasto-input').type(expense.valor)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
                 cy.getByTestId('expenses-portal-send-request-button').click()
 
                 // dashboard
@@ -59,7 +61,7 @@ describe("Expenses Portal Testes e2e:", () => {
 
                 cy.getByTestId('gasto-portal-previous-month-button').click()
                 cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
-                cy.getByTestId('valor-gasto-input').type(expense.valor)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
                 cy.getByTestId('expenses-portal-send-request-button').click()
 
                 // dashboard
@@ -85,7 +87,7 @@ describe("Expenses Portal Testes e2e:", () => {
                 cy.getByTestId('expenses-portal').should('exist')
 
                 cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
-                cy.getByTestId('valor-gasto-input').type(expense.valor)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
                 cy.getByTestId('expenses-portal-send-request-button').click()
 
                 // dashboard
@@ -104,11 +106,12 @@ describe("Expenses Portal Testes e2e:", () => {
                     categoria: "Saúde",
                     valor: '0'
                 }
+
                 // expenses portal
                 cy.getByTestId('expenses-portal').should('exist')
 
                 cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
-                cy.getByTestId('valor-gasto-input').type(expense.valor)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
                 cy.getByTestId('expenses-portal-send-request-button').click()
 
                 // dashboard
@@ -126,11 +129,207 @@ describe("Expenses Portal Testes e2e:", () => {
 
     describe("update", () => {
         describe("success", () => {
+            it("log in | update expense for current month", () => {
+                const expense = {
+                    categoria: 'Aluguel',
+                    valor: generateRandomValueWith2Decimals(384.29, 1000)
+                }
 
+                // first, add a new expense
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId(`delete-expenses-button-${expense.categoria}-${expense.valor}`).should('exist')
+
+                // now, update it!
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).click()
+
+                expense.valor = generateRandomValueWith2Decimals(512.48, 1000)
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).should('exist')
+
+            })
+
+            it("log in | update expense for past month", () => {
+                const expense = {
+                    categoria: 'Aluguel',
+                    valor: generateRandomValueWith2Decimals(384.29, 1000)
+                }
+
+                // first, add a new expense
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).should('exist')
+
+                // now, update it!
+
+                // expenses portal
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).click()
+
+                expense.valor = generateRandomValueWith2Decimals(512.48, 1000)
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).should('exist')
+
+            })
         })
 
         describe("fail", () => {
+            it("log in | fail to update expense: valor less than 0", () => {
+                const expense = {
+                    categoria: 'Aluguel',
+                    valor: generateRandomValueWith2Decimals(384.29, 1000)
+                }
 
+                // first, add a new expense
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).should('exist')
+
+                // now, update it!
+
+                // expenses portal
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).click()
+
+                expense.valor = '-1'
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).should('not.exist')
+            })
+
+            it("log in | fail to update expense: valor equals to 0", () => {
+                const expense = {
+                    categoria: 'Aluguel',
+                    valor: generateRandomValueWith2Decimals(384.29, 1000)
+                }
+
+                // first, add a new expense
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).should('exist')
+
+                // now, update it!
+
+                // expenses portal
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).click()
+
+                expense.valor = '0'
+
+                cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
+                cy.getByTestId('expenses-portal-send-request-button').click()
+
+                // dashboard
+                cy.getByTestId('expenses-portal').should('not.exist')
+                cy.getByTestId('open-expenses-portal-button').click()
+
+                // expenses portal
+                cy.getByTestId('expenses-portal').should('exist')
+
+                cy.getByTestId('gasto-portal-previous-month-button').click()
+                cy.getByTestId(`edit-expenses-button-${expense.categoria}-${expense.valor}`).should('not.exist')
+            })
         })
     })
 
@@ -148,7 +347,7 @@ describe("Expenses Portal Testes e2e:", () => {
                 cy.getByTestId('expenses-portal').should('exist')
 
                 cy.getByTestId('categoria-gasto-select-input').select(expense.categoria)
-                cy.getByTestId('valor-gasto-input').type(expense.valor)
+                cy.getByTestId('valor-gasto-input').clear().type(expense.valor)
                 cy.getByTestId('expenses-portal-send-request-button').click()
 
                 // now, delete it!
@@ -177,7 +376,3 @@ describe("Expenses Portal Testes e2e:", () => {
         })
     })
 })
-
-function generateRandomValueWith2Decimals(seed: number, range: number) {
-    return (seed + Math.random() * range).toFixed(1) + '5'
-}
