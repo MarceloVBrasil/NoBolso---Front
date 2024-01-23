@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Input from '../../components/input/Input'
 import Botao from '../../components/botao/Botao'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { axiosInstance } from '../../utils/axios'
 
 export default function Formulario() {
@@ -10,6 +10,8 @@ export default function Formulario() {
     const [senha, setSenha] = useState('')
     const [confirmarSenha, setConfirmarSenha] = useState('')
     const [nomeCompleto, setNomeCompleto] = useState('')
+
+    const navigate = useNavigate()
     return (
         <div className='flex flex-col font-mulish justify-center items-center p-8 bg-blue-500 min-h-[20rem]'>
             <div className='w-[90%] max-w-[60rem] bg-white shadow-xl flex flex-col gap-5 p-8'>
@@ -42,7 +44,12 @@ export default function Formulario() {
 
     async function cadastrar() {
         try {
-            await axiosInstance.post('/cadastrar', { nome: nomeCompleto, email, senha })
+            const response = await axiosInstance.post('/cadastrar', { nome: nomeCompleto, email, senha })
+
+            if (response.status == 201) {
+                navigate('/')
+            }
+
         } catch (error) {
 
         }
