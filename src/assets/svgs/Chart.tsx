@@ -1,5 +1,3 @@
-import React from 'react'
-
 export default function Chart({ width, height, classname }: { width: string, height: string, classname?: string }) {
     return (
         <svg height={height} viewBox="0 -960 960 960" width={width} className={classname}>

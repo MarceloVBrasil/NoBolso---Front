@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Input from '../../components/input/Input'
 import Botao from '../../components/botao/Botao'
 import { Link } from 'react-router-dom'
+import { axiosInstance } from '../../utils/axios'
 
 export default function Formulario() {
     const [email, setEmail] = useState('')
@@ -33,11 +34,19 @@ export default function Formulario() {
                         <p className={`text-xs text-red-500 absolute bottom-[-1.1rem] right-1 ${senha != confirmarSenha && confirmarSenha ? '' : 'hidden'}`}>Senha de confirmação diferente</p>
                     </div>
                 </div>
-                <Botao classname='font-mulish bg-yellow-300 p-4 shadow-xl active:bg-yellow-200' texto='Cadastrar' onClick={() => ''} />
+                <Botao classname='font-mulish bg-yellow-300 p-4 shadow-xl active:bg-yellow-200' texto='Cadastrar' onClick={cadastrar} />
                 <p className='text-center'>Já é cadastrado? <Link to={'/login'} className='underline text-yellow-500'>Faça seu login</Link></p>
             </div>
         </div>
     )
+
+    async function cadastrar() {
+        try {
+            await axiosInstance.post('/cadastrar', { nome: nomeCompleto, email, senha })
+        } catch (error) {
+
+        }
+    }
 
     function validateName(nomeCompleto: string) {
         if (nomeCompleto.split('').some(ch => !isLetter(ch) && !isSpace(ch))) return false
