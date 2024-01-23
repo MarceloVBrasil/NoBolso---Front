@@ -45,6 +45,7 @@ export default function Formulario() {
     async function cadastrar() {
         try {
             const response = await axiosInstance.post('/cadastrar', { nome: nomeCompleto, email, senha, confirmarEmail, confirmarSenha })
+            console.log(response)
 
             if (response.status == 201) {
                 navigate('/')
