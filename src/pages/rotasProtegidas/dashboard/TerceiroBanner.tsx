@@ -59,7 +59,7 @@ export default function TerceiroBanner({ data, aba }: { data: IMonthExpenseReven
                 <div className='flex gap-4 flex-wrap justify-center items-center py-8'>
                     {(data as IMonthExpenseRevenue[]).slice(startCategoriaIndex, itemsPorPagina + startCategoriaIndex).map((data) => {
                         return (
-                            <div key={data.id} className='min-w-[20rem]  h-40 bg-white rounded-lg shadow-2xl flex flex-col items-center'>
+                            <div key={data.id} className={`min-w-[20rem]  h-40 bg-white rounded-lg shadow-2xl flex flex-col items-center ${data.meta ? '' : 'hidden'}`}>
                                 <div className='flex justify-center border-b border-b-gray-300 py-2 w-full'>
                                     <p className='font-mulish font-semibold text-lg'>{data.categoria}</p>
                                 </div>
