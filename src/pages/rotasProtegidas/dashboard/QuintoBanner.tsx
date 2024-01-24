@@ -1,12 +1,10 @@
-import { useState } from 'react'
 import Money from '../../../assets/svgs/Money'
 import CategoriaPortal from '../portals/CategoriaPortal'
 
-export default function QuintoBanner() {
-    const [portalAberto, setPortalAberto] = useState(false)
+export default function QuintoBanner({ categoriaPortalAberto, setCategoriaPortalAberto }: { categoriaPortalAberto: boolean, setCategoriaPortalAberto: React.Dispatch<React.SetStateAction<boolean>> }) {
     return (
         <>
-            {portalAberto && <CategoriaPortal aberto={portalAberto} setPortalAberto={setPortalAberto} />}
+            {categoriaPortalAberto && <CategoriaPortal aberto={categoriaPortalAberto} setPortalAberto={setCategoriaPortalAberto} />}
             <div className='bg-blue-500 relative min-h-[30rem] flex justify-center gap-2 items-center w-screen  overflow-x-scroll'
                 onClick={openCategoriaPortal}>
                 <p className='text-5xl font-mulish text-yellow-500 absolute left-8 top-8'>Categorias</p>
@@ -23,6 +21,6 @@ export default function QuintoBanner() {
     )
 
     function openCategoriaPortal() {
-        setPortalAberto(true)
+        setCategoriaPortalAberto(true)
     }
 }

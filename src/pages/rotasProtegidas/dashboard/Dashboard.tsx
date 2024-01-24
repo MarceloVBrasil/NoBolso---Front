@@ -23,6 +23,10 @@ export default function Dashboard() {
         past12MonthsRevenues, setPast12MonthsRevenues
     } = useFinance()
 
+    const [gastoPortalAberto, setGastoPortalAberto] = useState(false)
+    const [receitaPortalAberto, setReceitaPortalAberto] = useState(false)
+    const [categoriaPortalAberto, setCategoriaPortalAberto] = useState(false)
+
     const [aba, setAba] = useState("ultimos 12 meses")
     let dinheiroEconomizado = aba === "somente este mes" ? calcularBalancoMes(monthExpenses, monthRevenues) : calcularBalancoUltimos12meses(past12MonthsExpenses, past12MonthsRevenues)
 
@@ -40,16 +44,20 @@ export default function Dashboard() {
         getExpensesFromPast12Months()
         getRevenuesFromPast12Months()
 
-    }, [])
+    }, [aba])
+
+    useEffect(() => {
+        getThisMonthExpenses()
+    }, [gastoPortalAberto])
 
     return (
         <>
             <PrimeiroBanner dinheiroEconomizado={dinheiroEconomizado} legenda={aba == "somente este mes" ? 'Economia este mês' : "Economia nos últimos 12 meses"} />
             <SegundoBanner aba={aba} setAba={setAba} />
             <TerceiroBanner data={data} aba={aba} />
-            <QuartoBanner />
-            <QuintoBanner />
-            <SextoBanner />
+            <QuartoBanner gastoPortalAberto={gastoPortalAberto} setGastoPortalAberto={setGastoPortalAberto} />
+            <QuintoBanner categoriaPortalAberto={categoriaPortalAberto} setCategoriaPortalAberto={setCategoriaPortalAberto} />
+            <SextoBanner receitaPortalAberto={receitaPortalAberto} setReceitaPortalAberto={setReceitaPortalAberto} />
         </>
     )
 

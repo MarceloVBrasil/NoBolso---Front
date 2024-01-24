@@ -1,3 +1,3 @@
-const { VITE_SERVER_URL } = import.meta.env
+const { VITE_TEST_SERVER_URL, VITE_SERVER_URL } = import.meta.env
 
-export { VITE_SERVER_URL }
+export { VITE_TEST_SERVER_URL, VITE_SERVER_URL }
